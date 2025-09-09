@@ -1,0 +1,113 @@
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+import time, random, pyautogui as pg
+from threading import Thread
+from pynput.keyboard import Key, Listener
+from webdriver_manager.chrome import ChromeDriverManager
+
+def thread(fn):
+    def wrapper(*args, **kwargs):
+        thread = Thread(target=fn, args=args, kwargs=kwargs)
+        thread.start()
+        return thread
+    return wrapper
+
+class MonkeyBot:
+    TIMELIMIT = 6000  #timeout
+    TIMEINTERVAL = 0.00 #SPEED
+    TIMEINT_ERR = 0.00
+    TYPOS_RATE = 0.00
+    TIMECONTROL = 30
+
+    def __init__(self):
+        # init
+        chrome_options = Options()
+        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument("--start-maximized")
+        self.driver = webdriver.Chrome(options=chrome_options, service=Service(ChromeDriverManager().install()))
+        
+    def open_website(self, accept_cookies=True, cookie=''):
+        self.driver.get('''https://monkeytype.com/''')
+        if accept_cookies: #cookies
+            assert cookie != '', 'Cookie xpath not provided'
+            self.driver.execute_script('arguments[0].click()', self.driver.find_element(by=By.XPATH, value=cookie))
+        self.driver.execute_script('alert("kirabot here! ")')
+
+    @thread
+    def enable_fail_safe(self):
+        def on_release(key):
+            if key == Key.esc:
+                self.driver.close()
+                return False
+        with Listener(on_release=on_release) as listener:
+            listener.join()
+    
+    def activate_bot(self, human_typing=True, enable_fail_safe=False):
+        def find_words():
+            temp = self.driver.find_element(by=By.XPATH, value='//*[@id="words"]').text
+            return temp[temp.find(words[-10:])+10:] if len(words) != 0 else temp
+
+        if enable_fail_safe:
+            WebDriverWait(self.driver, self.TIMELIMIT).until_not(EC.alert_is_present())
+            self.enable_fail_safe()
+
+        while True:
+            WebDriverWait(self.driver, self.TIMELIMIT).until_not(EC.alert_is_present())
+            self.driver.execute_script('''
+                function keyDownTextField(e) {
+                    var keyCode = e.keyCode;
+                    console.log(keyCode)
+                    if (keyCode == 16) {
+                        document.removeEventListener("keydown", keyDownTextField, false);
+                        alert("kirabot activated, left shift to start");
+                    }   
+                }
+                document.addEventListener("keydown", keyDownTextField, false);
+            ''')
+            WebDriverWait(self.driver, self.TIMELIMIT).until(EC.alert_is_present())
+            time.sleep(1.5)
+
+            start, words = time.time(), ''
+            if human_typing:
+                while time.time() - start < self.TIMECONTROL:
+                    words = find_words()
+                    self.randomize_typing_speed(words, self.TIMEINTERVAL, self.TIMEINT_ERR, self.TYPOS_RATE)
+            else:
+                while time.time() - start < self.TIMECONTROL:
+                    words = find_words()
+                    for i in words.split('\n'):
+                        pg.write(i + " ")
+            self.driver.execute_script('alert("kirabot wishes you a good wpm :)")')
+
+    def randomize_typing_speed(self, words, intervals, error_rate, typos_rate):
+        def add_noise():
+            if random.random() > 0.5:
+                return intervals+(random.random() * error_rate)
+            else:
+                return intervals-(random.random() * error_rate)
+        
+        def add_errors():
+            error_words = ['during','point','place','from','problem','which','world','begin','face','go']
+            if random.random() > (1 - typos_rate):
+                random_word = random.choice(error_words)
+                pg.write(random_word, interval=add_noise())
+                pg.press('backspace', presses=len(random_word), interval=add_noise())
+            
+        for i in words.split('\n'):
+            add_errors()
+            pg.write(i + " ", interval=add_noise())
+
+
+if __name__ == '__main__':
+    bot = MonkeyBot()
+    bot.open_website(accept_cookies=True, cookie='//*[@id="cookiesModal"]/div[2]/div[2]/div[2]/button[1]')
+    bot.activate_bot(human_typing=True, enable_fail_safe=True)
+
+    #dev prototype cache
+#    if (keyCode == 16) {
+#                        document.removeEventListener("keydown", keyDownTextField, false);
+#                        alert("kirabot activated, left shift to start");
