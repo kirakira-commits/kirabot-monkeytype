@@ -10,7 +10,7 @@ First of all your Chrome™ version **must** be lower than 115 (selenium breaks 
 ```bash
 git clone https://github.com/kirakira-commits/kirabot-monkeytype.git
 cd <dir (e.g. ~/Downloads/kirabot/)>
-python3 -m pip install -r requirements
+python3 -m pip install -r requirements.txt
 python3 kirabot.py
 ```
 
