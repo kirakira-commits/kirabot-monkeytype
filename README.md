@@ -30,7 +30,7 @@ python3 kirabot.py
 
 > [!TIP]
 > You can fork this repo and try to make one for [typeracer](https://play.typeracer.com/) because Typeracer doesn't have much anticheat either, until you get 200+ wpm.
-## Licnese
+## License
 This project uses the [Unlicense](https://unlicense.org/).
 This is free and unencumbered software released into the public domain.
 
