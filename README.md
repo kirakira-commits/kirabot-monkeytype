@@ -20,7 +20,7 @@ python3 kirabot.py
 - mac-x64：https://storage.googleapis.com/chrome-for-testing-public/114.0.5735.133/mac-x64/chrome-mac-x64.zip
 - win32：https://storage.googleapis.com/chrome-for-testing-public/114.0.5735.133/win32/chrome-win32.zip
 - win64：https://storage.googleapis.com/chrome-for-testing-public/114.0.5735.133/win64/chrome-win64.zip
-> Note: If you want more version downloads see [here](https://www.cnblogs.com/aiyablog/articles/18217977). It's a ***long*** list.
+> Note: If you want the downloads page that I used above see [here](https://www.techspot.com/downloads/4718-google-chrome.html).
 # License and stuff
 ## Warnings (again)
 > [!IMPORTANT]
